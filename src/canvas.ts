@@ -130,7 +130,7 @@ Here is the current content of the artifact:
 ${state.artifact}
 </artifact>
 
-Please update the artifact based on the user's request.
+Please update the artifact based on the user's request. Only update the specific parts of the artifact that the user has requested, try to keep the remainder of the artifact consistent.
 
 Follow these rules and guidelines:
 <rules-guidelines>
@@ -150,7 +150,7 @@ ${state.input}`;
       }),
       [
         BaseMessage.of({
-          role: `user`,
+          role: Role.USER,
           text: NEW_ARTIFACT_PROMPT,
         }),
       ],
@@ -201,7 +201,7 @@ ${state.input}`;
 
     const conversation = state.memory.messages.map((msg) => `${msg.role}: ${msg.text}`).join("\n");
 
-    const FOLLOWUP_ARTIFACT_PROMPT = `You are an AI assistant tasked with generating a followup to the artifact the user just generated.
+    const FOLLOWUP_ARTIFACT_PROMPT = `You are an AI assistant tasked with generating a followup message after creating or updating and artifact for the user.
 The context is you're having a conversation with the user, and you've just generated an artifact for them. Now you should follow up with a message that notifies them you're done. Make this message creative!
 
 I've provided some examples of what your followup might be, but please feel free to get creative here!
@@ -233,7 +233,7 @@ ${conversation}
 </conversation>
 
 This message should be very short. Never generate more than 2-3 short sentences. Your tone should be somewhat formal, but still friendly. Remember, you're an AI assistant.
-
+Do not include the artifact in the follow up message.
 Do NOT include any tags, or extra text before or after your response. Do NOT prefix your response. Your response to this message should ONLY contain the description/followup message.`;
 
     const { parsed } = await driver.generate(
@@ -269,8 +269,9 @@ for await (const { prompt } of reader) {
       memory: memory.asReadOnly(),
     })
     .observe((emitter) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       emitter.on("start", ({ step, run }) => {
-        reader.write(`-> ▶️ ${step}`, JSON.stringify(run.state).substring(0, 200).concat("..."));
+        reader.write(`-> ▶️ ${step}`, "");
       });
     });
 
