@@ -20,6 +20,9 @@ flowchart TD
     followUpArtifact --> END
     replyToGeneralInput --> END
 ```
+## ✨ Demo
+
+https://github.com/user-attachments/assets/4705adaf-a3d5-4e00-a0ac-d19914c7e4fd
 
 ## 📦 Requirements
 
