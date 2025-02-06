@@ -182,13 +182,13 @@ for await (const { prompt } of reader) {
     .observe((emitter) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       emitter.on("start", ({ step, run }) => {
-        reader.write(`-> ▶️ ${step}`, "");
+        reader.write(`-> ▶️  ${step}`, "");
       });
     });
 
   lastResult = result;
 
-  reader.write("🤖 Artifact:", lastResult.artifact!);
+  reader.write("🤖 Artifact:", `\n\n${lastResult.artifact!}\n`);
   reader.write("🤖 Response:", lastResult.output);
 
   const assistantMessage = BaseMessage.of({

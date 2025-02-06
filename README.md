@@ -7,7 +7,7 @@ A co-editing agent built using [Bee workflows](https://i-am-bee.github.io/bee-ag
 - Generate & update co-editable artifacts (Markdown & Code)
 - Implemented using Bee Workflows 💪
 
-## Agent Architecture
+## ✨ Agent Architecture
 
 ```mermaid
 flowchart TD
