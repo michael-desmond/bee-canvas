@@ -2,6 +2,8 @@
 
 A co-editing agent built using [Bee workflows](https://i-am-bee.github.io/bee-agent-framework/), [Granite 3.1](https://www.ibm.com/granite/docs/models/granite/) and [ollama](https://ollama.com).
 
+Inspired by [open-canvas](https://github.com/langchain-ai/open-canvas). 
+
 ## ✨ Key Features
 
 - Generate & update co-editable artifacts (Markdown & Code)
