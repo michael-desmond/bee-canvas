@@ -33,7 +33,7 @@ const STEPS = {
   replyToGeneralInput: "replyToGeneralInput" as const,
 };
 
-const model = new OllamaChatModel("granite3.2:8b");
+const model = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL);
 
 const workflow = new Workflow({
   schema: workflowSchema,
@@ -166,7 +166,7 @@ for await (const { prompt } of reader) {
 
   lastResult = result;
 
-  reader.write("🤖 Artifact:", `\n\n${lastResult.artifact!}\n`);
+  reader.write("🤖 Artifact:", `\n\n${lastResult.artifact || ""}\n`);
   reader.write("🤖 Response:", lastResult.output);
 
   const assistantMessage = new AssistantMessage(lastResult.output);
