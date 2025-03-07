@@ -1,5 +1,5 @@
 {
-  "name": "bee-agent-framework-starter",
+  "name": "beeai-framework-starter",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -12,13 +12,13 @@
   ],
   "main": "./dist/agent.js",
   "types": "./dist/agent.d.ts",
-  "homepage": "https://github.com/i-am-bee/bee-agent-framework-starter#readme",
+  "homepage": "https://github.com/i-am-bee/beeai-framework-starter#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/i-am-bee/bee-agent-framework-starter.git"
+    "url": "git+https://github.com/i-am-bee/beeai-framework-starter.git"
   },
   "bugs": {
-    "url": "https://github.com/i-am-bee/bee-agent-framework-starter/issues"
+    "url": "https://github.com/i-am-bee/beeai-framework-starter/issues"
   },
   "scripts": {
     "start": "npm exec tsx",
@@ -36,18 +36,11 @@
     "prepare": "husky && npm run _ensure_env"
   },
   "dependencies": {
-    "@google-cloud/vertexai": "^1.9.2",
-    "@ibm-generative-ai/node-sdk": "^3.2.4",
     "@opentelemetry/sdk-node": "^0.57.0",
-    "bee-agent-framework": "^0.0.61",
-    "bee-observe-connector": "^0.0.6",
+    "beeai-framework": "^0.1.4",
     "dotenv": "^16.4.5",
-    "groq-sdk": "^0.7.0",
-    "ollama": "^0.5.11",
-    "openai": "^4.77.0",
-    "openai-chat-tokens": "^0.2.8",
     "pino": "^9.4.0",
-    "zod": "^3.23.8"
+    "zod": "3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",

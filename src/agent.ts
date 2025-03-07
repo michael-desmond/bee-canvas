@@ -1,12 +1,10 @@
 import "dotenv/config";
 import { z } from "zod";
-import { Workflow } from "bee-agent-framework/experimental/workflows/workflow";
-import { UnconstrainedMemory } from "bee-agent-framework/memory/unconstrainedMemory";
-import { createConsoleReader } from "./helpers/io.js";
-import { BaseMessage, Role } from "bee-agent-framework/llms/primitives/message";
-import { JsonDriver } from "bee-agent-framework/llms/drivers/json";
-import { getChatLLM } from "./helpers/llm.js";
-import { ReadOnlyMemory } from "bee-agent-framework/memory/base";
+import { Workflow } from "beeai-framework/workflows/workflow";
+import { ReadOnlyMemory } from "beeai-framework/memory/base";
+import { AssistantMessage, UserMessage } from "beeai-framework/backend/message";
+import { OllamaChatModel } from "beeai-framework/adapters/ollama/backend/chat";
+
 import {
   AGENT_CONTEXT,
   FOLLOW_UP,
@@ -17,8 +15,10 @@ import {
   ROUTE_QUERY_TEMPLATE,
   UPDATE_ARTIFACT_PROMPT,
 } from "./prompts.js";
+import { UnconstrainedMemory } from "beeai-framework/memory/unconstrainedMemory";
+import { createConsoleReader } from "./helpers/reader.js";
 
-const schema = z.object({
+const workflowSchema = z.object({
   input: z.string(),
   output: z.string().optional(),
   artifact: z.string().optional(),
@@ -33,144 +33,122 @@ const STEPS = {
   replyToGeneralInput: "replyToGeneralInput" as const,
 };
 
+const model = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL);
+
 const workflow = new Workflow({
-  schema,
-  outputSchema: schema.required({ output: true }),
-})
-  .addStep(STEPS.routeUserMessage, async (state) => {
-    const driver = new JsonDriver(getChatLLM());
-    const recentMessages = state.memory.messages
-      .map((msg) => `${msg.role}: ${msg.text}`)
-      .join("\n");
+  schema: workflowSchema,
+  outputSchema: workflowSchema.required({ output: true }),
+});
 
-    // Conditionally choose the routes
-    const options = state.artifact
-      ? ROUTE_QUERY_OPTIONS_HAS_ARTIFACTS
-      : ROUTE_QUERY_OPTIONS_NO_ARTIFACTS;
-    const prompt = ROUTE_QUERY_TEMPLATE.render({
-      context: AGENT_CONTEXT,
-      options: options,
-      query: state.input,
-      recentMessages: recentMessages,
-    });
+workflow.addStep(STEPS.routeUserMessage, async (state) => {
+  const recentMessages = state.memory.messages.map((msg) => `${msg.role}: ${msg.text}`).join("\n");
 
-    const schema = state.artifact
-      ? z.union([z.literal("rewriteArtifact"), z.literal("replyToGeneralInput")])
-      : z.union([z.literal("generateArtifact"), z.literal("replyToGeneralInput")]);
-    const { parsed } = await driver.generate(schema, [
-      BaseMessage.of({
-        role: Role.USER,
-        text: prompt,
-      }),
-    ]);
-    return { next: parsed };
-  })
-  .addStep(STEPS.generateArtifact, async (state) => {
-    const driver = new JsonDriver(getChatLLM());
-    const recentMessages = state.memory.messages
-      .map((msg) => `${msg.role}: ${msg.text}`)
-      .join("\n");
-    const prompt = NEW_ARTIFACT_PROMPT.render({
-      context: AGENT_CONTEXT,
-      recentMessages: recentMessages,
-      request: state.input,
-    });
-
-    const { parsed } = await driver.generate(
-      z.object({
-        artifact: z.string().describe("The artifact content."),
-      }),
-      [
-        BaseMessage.of({
-          role: Role.USER,
-          text: prompt,
-        }),
-      ],
-    );
-
-    return { update: { artifact: parsed.artifact }, next: STEPS.followUpArtifact };
-  })
-  .addStep(STEPS.rewriteArtifact, async (state) => {
-    const driver = new JsonDriver(getChatLLM());
-    const prompt = UPDATE_ARTIFACT_PROMPT.render({
-      context: AGENT_CONTEXT,
-      artifact: state.artifact,
-      request: state.input,
-    });
-
-    const { parsed } = await driver.generate(
-      z.object({
-        artifact: z.string().describe("The updated artifact."),
-      }),
-      [
-        BaseMessage.of({
-          role: Role.USER,
-          text: prompt,
-        }),
-      ],
-    );
-
-    return { update: { artifact: parsed.artifact }, next: STEPS.followUpArtifact };
-  })
-  .addStep(STEPS.replyToGeneralInput, async (state) => {
-    const driver = new JsonDriver(getChatLLM());
-    const recentMessages = state.memory.messages
-      .map((msg) => `${msg.role}: ${msg.text}`)
-      .join("\n");
-    const prompt = REPLY_GENERAL.render({
-      context: AGENT_CONTEXT,
-      artifact: state.artifact,
-      recentMessages: recentMessages,
-      request: state.input,
-    });
-
-    const { parsed } = await driver.generate(
-      z.object({
-        response: z.string().describe("Response to the user's request."),
-      }),
-      [
-        BaseMessage.of({
-          role: Role.USER,
-          text: prompt,
-        }),
-      ],
-    );
-    return { update: { output: parsed.response }, next: Workflow.END };
-  })
-  .addStep(STEPS.followUpArtifact, async (state) => {
-    const driver = new JsonDriver(getChatLLM());
-    const recentMessages = state.memory.messages
-      .map((msg) => `${msg.role}: ${msg.text}`)
-      .join("\n");
-    const prompt = FOLLOW_UP.render({
-      artifact: state.artifact,
-      recentMessages: recentMessages,
-      request: state.input,
-    });
-
-    const { parsed } = await driver.generate(
-      z.object({
-        response: z.string().describe("The follup message."),
-      }),
-      [
-        BaseMessage.of({
-          role: Role.USER,
-          text: prompt,
-        }),
-      ],
-    );
-    return { update: { output: parsed.response }, next: Workflow.END };
+  // Conditionally choose the routes
+  const options = state.artifact
+    ? ROUTE_QUERY_OPTIONS_HAS_ARTIFACTS
+    : ROUTE_QUERY_OPTIONS_NO_ARTIFACTS;
+  const prompt = ROUTE_QUERY_TEMPLATE.render({
+    context: AGENT_CONTEXT,
+    options: options,
+    query: state.input,
+    recentMessages: recentMessages,
   });
+
+  const schema = state.artifact
+    ? z.union([z.literal("rewriteArtifact"), z.literal("replyToGeneralInput")])
+    : z.union([z.literal("generateArtifact"), z.literal("replyToGeneralInput")]);
+
+  const { object } = await model.createStructure({
+    schema: schema,
+    messages: [new UserMessage(prompt)],
+  });
+
+  return object;
+});
+
+workflow.addStep(STEPS.generateArtifact, async (state) => {
+  const recentMessages = state.memory.messages.map((msg) => `${msg.role}: ${msg.text}`).join("\n");
+
+  const prompt = NEW_ARTIFACT_PROMPT.render({
+    context: AGENT_CONTEXT,
+    recentMessages: recentMessages,
+    request: state.input,
+  });
+
+  const response = await model.createStructure({
+    schema: z.object({
+      artifact: z.string().describe("The artifact content."),
+    }),
+    messages: [new UserMessage(prompt)],
+  });
+
+  state.artifact = response.object.artifact;
+  return STEPS.followUpArtifact;
+});
+
+workflow.addStep(STEPS.rewriteArtifact, async (state) => {
+  const prompt = UPDATE_ARTIFACT_PROMPT.render({
+    context: AGENT_CONTEXT,
+    artifact: state.artifact,
+    request: state.input,
+  });
+
+  const response = await model.createStructure({
+    schema: z.object({
+      artifact: z.string().describe("The updated artifact."),
+    }),
+    messages: [new UserMessage(prompt)],
+  });
+
+  state.artifact = response.object.artifact;
+  return STEPS.followUpArtifact;
+});
+
+workflow.addStep(STEPS.replyToGeneralInput, async (state) => {
+  const recentMessages = state.memory.messages.map((msg) => `${msg.role}: ${msg.text}`).join("\n");
+  const prompt = REPLY_GENERAL.render({
+    context: AGENT_CONTEXT,
+    artifact: state.artifact,
+    recentMessages: recentMessages,
+    request: state.input,
+  });
+
+  const response = await model.createStructure({
+    schema: z.object({
+      response: z.string().describe("Response to the user's request."),
+    }),
+    messages: [new UserMessage(prompt)],
+  });
+
+  state.output = response.object.response;
+  return Workflow.END;
+});
+
+workflow.addStep(STEPS.followUpArtifact, async (state) => {
+  const recentMessages = state.memory.messages.map((msg) => `${msg.role}: ${msg.text}`).join("\n");
+  const prompt = FOLLOW_UP.render({
+    artifact: state.artifact,
+    recentMessages: recentMessages,
+    request: state.input,
+  });
+
+  const response = await model.createStructure({
+    schema: z.object({
+      response: z.string().describe("The follow up message."),
+    }),
+    messages: [new UserMessage(prompt)],
+  });
+
+  state.output = response.object.response;
+  return Workflow.END;
+});
 
 const memory = new UnconstrainedMemory();
 let lastResult = {} as Workflow.output<typeof workflow>;
 const reader = createConsoleReader();
 
 for await (const { prompt } of reader) {
-  const userMessage = BaseMessage.of({
-    role: Role.USER,
-    text: prompt,
-  });
+  const userMessage = new UserMessage(prompt);
   await memory.add(userMessage);
 
   const { result } = await workflow
@@ -188,13 +166,10 @@ for await (const { prompt } of reader) {
 
   lastResult = result;
 
-  reader.write("🤖 Artifact:", `\n\n${lastResult.artifact!}\n`);
+  reader.write("🤖 Artifact:", `\n\n${lastResult.artifact || ""}\n`);
   reader.write("🤖 Response:", lastResult.output);
 
-  const assistantMessage = BaseMessage.of({
-    role: Role.ASSISTANT,
-    text: lastResult.output,
-  });
+  const assistantMessage = new AssistantMessage(lastResult.output);
 
   await memory.add(assistantMessage);
 }
