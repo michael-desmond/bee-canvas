@@ -1,4 +1,4 @@
-import { PromptTemplate } from "bee-agent-framework";
+import { PromptTemplate } from "beeai-framework";
 import { z } from "zod";
 
 export const AGENT_CONTEXT = `You are "Bee Canvas". You are a co-editing agent. 
