@@ -36,11 +36,13 @@
     "prepare": "husky && npm run _ensure_env"
   },
   "dependencies": {
+    "@i-am-bee/acp-sdk": "0.0.5",
+    "@i-am-bee/beeai-sdk": "0.0.16",
     "@opentelemetry/sdk-node": "^0.57.0",
-    "beeai-framework": "^0.1.4",
+    "beeai-framework": "^0.1.7",
     "dotenv": "^16.4.5",
     "pino": "^9.4.0",
-    "zod": "3.23.8"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",
@@ -62,5 +64,8 @@
   "lint-staged": {
     "*.{ts,js}": "eslint --fix",
     "*": "prettier --ignore-unknown --write"
+  },
+  "overrides": {
+    "zod": "^3.24.2"
   }
 }
