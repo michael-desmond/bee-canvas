@@ -1,6 +1,6 @@
 # 💁 📜 🐝 Bee Canvas
 
-A co-editing agent built using [Bee workflows](https://i-am-bee.github.io/bee-agent-framework/), [Granite 3.1](https://www.ibm.com/granite/docs/models/granite/) and [ollama](https://ollama.com).
+A co-editing agent built using [Bee workflows](https://i-am-bee.github.io/bee-agent-framework/), [Granite 3.2](https://www.ibm.com/granite/docs/models/granite/) and [ollama](https://ollama.com).
 
 Inspired by [open-canvas](https://github.com/langchain-ai/open-canvas).
 
@@ -43,4 +43,4 @@ ollama pull granite3.2:8b
 1. Clone this repository.
 2. Install dependencies `npm ci`.
 3. Configure your project by filling in missing values in the `.env` file (default LLM provider is locally hosted `Ollama`).
-4. Run the agent `npm run start src/agent.ts`
+4. Run the agent `npm run start src/cli.ts`
