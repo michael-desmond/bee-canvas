@@ -1,6 +1,6 @@
 manifestVersion: 1
 driver: nodejs
-package: "git+https://github.com/michael-desmond/bee-canvas#path=src/beeai"
+package: "git+https://github.com/michael-desmond/bee-canvas@main#path=src/beeai"
 serverType: http
 mcpTransport: sse
 mcpEndpoint: /sse
