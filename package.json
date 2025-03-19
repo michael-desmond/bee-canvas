@@ -20,7 +20,11 @@
   "bugs": {
     "url": "https://github.com/i-am-bee/beeai-framework-starter/issues"
   },
+  "bin": {
+    "server": "./src/beeai/server.ts"
+  },
   "scripts": {
+    "server": "./src/beeai/server.ts",
     "start": "npm exec tsx",
     "ts:check": "tsc --noEmit --project tsconfig.json",
     "build": "rimraf dist && tsc",
