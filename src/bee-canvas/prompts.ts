@@ -65,7 +65,7 @@ Recent messages between you (the assistant) and the user, can be helpful to dete
 {{recentMessages}}
 
 The User request:
-{{query}}`,
+{{request}}`,
 });
 
 export const UPDATE_ARTIFACT_PROMPT = new PromptTemplate({
