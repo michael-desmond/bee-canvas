@@ -16,9 +16,11 @@ flowchart TD
     A[START] --> routeUserMessage
     routeUserMessage --> generateArtifact
     routeUserMessage --> rewriteArtifact
+    routeUserMessage --> updateSelectedText
     routeUserMessage --> replyToGeneralInput
     generateArtifact --> followUpArtifact
     rewriteArtifact --> followUpArtifact
+    updateSelectedText --> followUpArtifact
     followUpArtifact --> END
     replyToGeneralInput --> END
 ```
