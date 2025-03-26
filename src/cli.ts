@@ -5,16 +5,16 @@ import { BeeCanvasAgent } from "./bee-canvas/agent.js";
 import { UserMessage, AssistantMessage } from "beeai-framework/backend/message";
 import { OllamaChatModel } from "beeai-framework/adapters/ollama/backend/chat";
 
-const chatModel = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL);
+const chatModel = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL, {
+  numCtx: 32000,
+});
+
 const workflow = new BeeCanvasAgent(chatModel).getWorkflow();
 const memory = new UnconstrainedMemory();
 let lastResult = {} as Workflow.output<typeof workflow>;
 const reader = createConsoleReader();
 
 for await (const { prompt } of reader) {
-  const userMessage = new UserMessage(prompt);
-  await memory.add(userMessage);
-
   const { result } = await workflow
     .run({
       input: prompt,
@@ -35,5 +35,6 @@ for await (const { prompt } of reader) {
   reader.write("🤖 Response:", lastResult.output || "");
 
   const assistantMessage = new AssistantMessage(lastResult.output || "");
+  await memory.add(new UserMessage(prompt));
   await memory.add(assistantMessage);
 }

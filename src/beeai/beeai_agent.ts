@@ -7,6 +7,8 @@ import { BeeCanvasAgent } from "../bee-canvas/agent.js";
 import { OllamaChatModel } from "beeai-framework/adapters/ollama/backend/chat";
 
 const inputSchema = messageInputSchema.extend({
+  selectedTextOffset: z.number().optional(),
+  selectedTextLength: z.number().optional(),
   artifact: z.string().optional(),
 });
 
@@ -26,13 +28,17 @@ const run = async (
 
   { signal }: { signal?: AbortSignal },
 ) => {
-  const { messages, artifact } = params.input;
+  const { messages, artifact, selectedTextOffset, selectedTextLength } = params.input;
+
+  // Input passed as first user message
   const memory = new UnconstrainedMemory();
   await memory.addMany(
     messages.slice(0, -1).map(({ role, content }) => Message.of({ role, text: content })),
   );
   const input = messages.at(-1)?.content || "";
-  const chatModel = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL || "granite3.2:8b");
+  const chatModel = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL || "granite3.2:8b", {
+    numCtx: 32000,
+  });
   const agent = new BeeCanvasAgent(chatModel);
 
   const { result } = await agent.getWorkflow().run(
@@ -40,6 +46,8 @@ const run = async (
       input: input,
       output: "",
       artifact: artifact,
+      selectedTextOffset: selectedTextOffset,
+      selectedTextLength: selectedTextLength,
       memory: memory.asReadOnly(),
     },
     { signal: signal },
@@ -52,7 +60,6 @@ const run = async (
 };
 
 const agentName = "bee-canvas";
-
 const exampleInputText = "Write a topological sort function in python";
 
 // const exampleInput: Input = {
