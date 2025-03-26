@@ -13,8 +13,10 @@ import {
   ROUTE_QUERY_OPTIONS_NO_ARTIFACTS,
   ROUTE_QUERY_TEMPLATE,
   UPDATE_ARTIFACT_PROMPT,
+  UPDATE_HIGHLIGHTED_TEXT_PROMPT,
 } from "./prompts.js";
 import { ChatModel } from "beeai-framework";
+import { tagSelectedMarkdownByOffset } from "./util.js";
 
 export class BeeCanvasAgent {
   static STEPS = {
@@ -22,12 +24,15 @@ export class BeeCanvasAgent {
     generateArtifact: "generateArtifact" as const,
     rewriteArtifact: "rewriteArtifact" as const,
     followUpArtifact: "followUpArtifact" as const,
+    updateSelectedText: "updateSelectedText" as const,
     replyToGeneralInput: "replyToGeneralInput" as const,
   };
 
   private workflowSchema = z.object({
     input: z.string(),
     output: z.string(),
+    selectedTextOffset: z.number().optional(),
+    selectedTextLength: z.number().optional(),
     artifact: z.string().optional(),
     memory: z.instanceof(ReadOnlyMemory),
   });
@@ -43,6 +48,10 @@ export class BeeCanvasAgent {
     });
 
     this.workflow.addStep(BeeCanvasAgent.STEPS.routeUserMessage, async (state) => {
+      if (state.artifact && state.selectedTextOffset && state.selectedTextLength) {
+        return BeeCanvasAgent.STEPS.updateSelectedText;
+      }
+
       const recentMessages = state.memory.messages
         .map((msg) => `${msg.role}: ${msg.text}`)
         .join("\n");
@@ -110,6 +119,36 @@ export class BeeCanvasAgent {
       return BeeCanvasAgent.STEPS.followUpArtifact;
     });
 
+    this.workflow.addStep(BeeCanvasAgent.STEPS.updateSelectedText, async (state) => {
+      if (state.artifact && state.selectedTextOffset && state.selectedTextLength) {
+        const artifactWithSelection = tagSelectedMarkdownByOffset(
+          state.artifact,
+          state.selectedTextOffset,
+          state.selectedTextLength,
+          "selected",
+        );
+
+        const prompt = UPDATE_HIGHLIGHTED_TEXT_PROMPT.render({
+          artifactWithSelection: artifactWithSelection,
+          selectedText: state.artifact.slice(
+            state.selectedTextOffset,
+            state.selectedTextOffset + state.selectedTextLength,
+          ),
+          request: state.input,
+        });
+
+        const response = await this.chatModel.createStructure({
+          schema: z.object({
+            updatedDocument: z.string().describe("The updated document."),
+          }),
+          messages: [new UserMessage(prompt)],
+        });
+
+        state.artifact = response.object.updatedDocument;
+        return BeeCanvasAgent.STEPS.followUpArtifact;
+      }
+    });
+
     this.workflow.addStep(BeeCanvasAgent.STEPS.replyToGeneralInput, async (state) => {
       const recentMessages = state.memory.messages
         .map((msg) => `${msg.role}: ${msg.text}`)
@@ -137,6 +176,7 @@ export class BeeCanvasAgent {
         .map((msg) => `${msg.role}: ${msg.text}`)
         .join("\n");
       const prompt = FOLLOW_UP.render({
+        context: AGENT_CONTEXT,
         artifact: state.artifact,
         recentMessages: recentMessages,
         request: state.input,
