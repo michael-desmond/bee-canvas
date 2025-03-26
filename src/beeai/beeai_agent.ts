@@ -141,7 +141,7 @@ export const agent = {
       ],
     },
     ui: {
-      type: "chat",
+      type: "custom",
       userGreeting: "Ask the agent to help you write a document or some code.",
     },
     githubUrl: "https://github.com/michael-desmond/bee-canvas",
