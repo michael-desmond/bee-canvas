@@ -1,6 +1,6 @@
 manifestVersion: 1
 driver: nodejs
-package: "git+https://github.com/michael-desmond/bee-canvas@main"
+package: "file://."
 serverType: http
 command: ["server"]
 env:

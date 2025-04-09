@@ -3,12 +3,9 @@ import { createConsoleReader } from "./helpers/reader.js";
 import { Workflow } from "beeai-framework/workflows/workflow";
 import { BeeCanvasAgent } from "./bee-canvas/agent.js";
 import { UserMessage, AssistantMessage } from "beeai-framework/backend/message";
-import { OllamaChatModel } from "beeai-framework/adapters/ollama/backend/chat";
+import { getChatModel } from "./helpers/model.js";
 
-const chatModel = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL, {
-  numCtx: 32000,
-});
-
+const chatModel = getChatModel();
 const workflow = new BeeCanvasAgent(chatModel).getWorkflow();
 const memory = new UnconstrainedMemory();
 let lastResult = {} as Workflow.output<typeof workflow>;

@@ -1,0 +1,45 @@
+{
+  "location": "http://localhost:8080",
+  "id": "bee-canvas",
+  "manifest": {
+    "manifestVersion": 1,
+    "name": "bee-canvas",
+    "description": "A co-editing agent built using the beeai-framework.",
+    "framework": "BeeAI",
+    "license": "Apache 2.0",
+    "languages": ["TypeScript"],
+    "githubUrl": "git+https://github.com/michael-desmond/bee-canvas@main",
+    "avgRunTimeSeconds": 2.1,
+    "avgRunTokens": 111,
+    "examples": {
+      "cli": []
+    },
+    "ui": {
+      "type": "custom",
+      "userGreeting": "Let's create together!"
+    },
+    "fullDescription": "A co-editing agent built using the beeai-framework.\n## ✨ Key Features\n   - Generate & update co-editable artifacts (Markdown & Code)\n   - Implemented using Bee Workflows 💪",
+    "env": [
+      {
+        "name": "watsonx_key",
+        "required": false,
+        "description": "Watsonx API Key"
+      },
+      {
+        "name": "watsonx_project",
+        "required": false,
+        "description": "Watsonx Project ID"
+      },
+      {
+        "name": "watsonx_url",
+        "required": false,
+        "description": "Watsonx URL e.g. https://us-south.ml.cloud.ibm.com"
+      },
+      {
+        "name": "llm_backend",
+        "required": false,
+        "description": "ollama|watsonx"
+      }
+    ]
+  }
+}

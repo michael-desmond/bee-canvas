@@ -4,7 +4,8 @@ import { messageInputSchema, messageOutputSchema } from "@i-am-bee/beeai-sdk/sch
 import { Message } from "beeai-framework/backend/message";
 import { UnconstrainedMemory } from "beeai-framework/memory/unconstrainedMemory";
 import { BeeCanvasAgent } from "../bee-canvas/agent.js";
-import { OllamaChatModel } from "beeai-framework/adapters/ollama/backend/chat";
+import { getChatModel } from "src/helpers/model.js";
+import { AcpServer } from "@i-am-bee/acp-sdk/server/acp";
 
 const inputSchema = messageInputSchema.extend({
   selectedTextOffset: z.number().optional(),
@@ -19,45 +20,46 @@ const outputSchema = messageOutputSchema.extend({
 type Input = z.infer<typeof inputSchema>;
 type Output = z.infer<typeof outputSchema>;
 
-const run = async (
-  {
-    params,
-  }: {
-    params: { input: Input };
-  },
+const run =
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (server: AcpServer) =>
+    async (
+      {
+        params,
+      }: {
+        params: { input: Input };
+      },
 
-  { signal }: { signal?: AbortSignal },
-) => {
-  const { messages, artifact, selectedTextOffset, selectedTextLength } = params.input;
+      { signal }: { signal?: AbortSignal },
+    ) => {
+      const { messages, artifact, selectedTextOffset, selectedTextLength } = params.input;
 
-  // Input passed as first user message
-  const memory = new UnconstrainedMemory();
-  await memory.addMany(
-    messages.slice(0, -1).map(({ role, content }) => Message.of({ role, text: content })),
-  );
-  const input = messages.at(-1)?.content || "";
-  const chatModel = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL || "granite3.2:8b", {
-    numCtx: 32000,
-  });
-  const agent = new BeeCanvasAgent(chatModel);
+      // Input passed as first user message
+      const memory = new UnconstrainedMemory();
+      await memory.addMany(
+        messages.slice(0, -1).map(({ role, content }) => Message.of({ role, text: content })),
+      );
+      const input = messages.at(-1)?.content || "";
+      const chatModel = getChatModel();
+      const agent = new BeeCanvasAgent(chatModel);
 
-  const { result } = await agent.getWorkflow().run(
-    {
-      input: input,
-      output: "",
-      artifact: artifact,
-      selectedTextOffset: selectedTextOffset,
-      selectedTextLength: selectedTextLength,
-      memory: memory.asReadOnly(),
-    },
-    { signal: signal },
-  );
+      const { result } = await agent.getWorkflow().run(
+        {
+          input: input,
+          output: "",
+          artifact: artifact,
+          selectedTextOffset: selectedTextOffset,
+          selectedTextLength: selectedTextLength,
+          memory: memory.asReadOnly(),
+        },
+        { signal: signal },
+      );
 
-  return {
-    messages: [{ role: "assistant", content: result.output || "" }],
-    artifact: result.artifact,
-  } as Output;
-};
+      return {
+        messages: [{ role: "assistant", content: result.output || "" }],
+        artifact: result.artifact,
+      } as Output;
+    };
 
 const agentName = "bee-canvas";
 const exampleInputText = "Write a topological sort function in python";
