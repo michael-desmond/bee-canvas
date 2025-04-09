@@ -1,5 +1,4 @@
-#!/usr/bin/env -S BEE_FRAMEWORK_INSTRUMENTATION_ENABLED=true npx -y tsx@latest
-
+#!/usr/bin/env -S npx -y tsx@latest
 import { AcpServer } from "@i-am-bee/acp-sdk/server/acp";
 
 import { Version } from "beeai-framework";
@@ -12,7 +11,7 @@ async function registerAgents(server: AcpServer) {
     beeCanvasAgent.description,
     beeCanvasAgent.inputSchema,
     beeCanvasAgent.outputSchema,
-    beeCanvasAgent.run,
+    beeCanvasAgent.run(server),
     beeCanvasAgent.metadata,
   );
 }

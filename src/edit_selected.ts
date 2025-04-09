@@ -1,11 +1,9 @@
 import { UnconstrainedMemory } from "beeai-framework/memory/unconstrainedMemory";
 import { createConsoleReader } from "./helpers/reader.js";
 import { BeeCanvasAgent } from "./bee-canvas/agent.js";
-import { OllamaChatModel } from "beeai-framework/adapters/ollama/backend/chat";
+import { getChatModel } from "./helpers/model.js";
 
-const chatModel = new OllamaChatModel(process.env.OLLAMA_CHAT_MODEL, {
-  numCtx: 32000,
-});
+const chatModel = getChatModel();
 
 const workflow = new BeeCanvasAgent(chatModel).getWorkflow();
 const memory = new UnconstrainedMemory();
@@ -37,7 +35,7 @@ const prompt =
 const offset = 199;
 const length = 222;
 
-console.log(artifact.slice(offset, offset + length));
+// console.log(artifact.slice(offset, offset + length));
 
 const { result } = await workflow
   .run({

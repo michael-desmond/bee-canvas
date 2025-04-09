@@ -1,5 +1,5 @@
 {
-  "name": "beeai-framework-starter",
+  "name": "bee-canvas",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -40,8 +40,8 @@
     "prepare": "husky && npm run _ensure_env"
   },
   "dependencies": {
-    "@i-am-bee/acp-sdk": "0.0.5",
-    "@i-am-bee/beeai-sdk": "0.0.16",
+    "@i-am-bee/acp-sdk": "^0.0.5",
+    "@i-am-bee/beeai-sdk": "^0.0.16",
     "@opentelemetry/sdk-node": "^0.57.0",
     "beeai-framework": "^0.1.7",
     "dotenv": "^16.4.5",
