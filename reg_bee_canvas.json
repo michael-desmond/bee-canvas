@@ -1,5 +1,5 @@
 {
-  "location": "http://localhost:8080",
+  "location": "http://127.0.0.1:8000",
   "id": "bee-canvas",
   "manifest": {
     "manifestVersion": 1,

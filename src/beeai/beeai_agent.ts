@@ -64,59 +64,6 @@ const run =
 const agentName = "bee-canvas";
 const exampleInputText = "Write a topological sort function in python";
 
-// const exampleInput: Input = {
-//     messages: [{ role: "user", content: exampleInputText }],
-// };
-// const exampleOutputText: string = `Your topological sort function is ready! It's a Python implementation that performs a depth-first search on a directed acyclic graph. Please review and let me know if any adjustments are needed.`;
-const exampleOutputArtifact = `def topological_sort(graph):
-    """
-    Perform a topological sort on the given directed acyclic graph.
-    
-    Args:
-        graph (dict): A dictionary representing the graph where keys are nodes and values are lists of nodes that depend on the key node.
-    
-    Returns:
-        list: A list of nodes in topologically sorted order.
-    """
-    # Initialize a stack and an empty set to keep track of visited nodes
-    stack = []
-    visited = set()
-
-    def dfs(node):
-        # If the node has already been visited, skip it
-        if node in visited:
-            return
-
-        # Mark the node as visited
-        visited.add(node)
-
-        # Visit all nodes that depend on the current node
-        for neighbor in graph.get(node, []):
-            dfs(neighbor)
-
-        # Push the current node onto the stack
-        stack.append(node)
-
-    # Perform DFS from each unvisited node
-    for node in graph:
-        if node not in visited:
-            dfs(node)
-
-    # The topologically sorted order is the reverse of the stack
-    return stack[::-1]`;
-
-// const exampleOutput: Output = {
-//     messages: [{ role: "user", content: exampleInputText }],
-//     artifact: exampleOutputArtifact,
-//     logs: []
-// };
-
-const processingSteps = [
-  "Analyzes the provided source code to extract key features and functionality",
-  "Formats the extracted information into a structured documentation template",
-  "Simulates an interactive discussion to ensure the output adheres to the documentation standards",
-];
-
 export const agent = {
   name: agentName,
   description: `A co-editing agent built using the beeai-framework.`,
@@ -134,13 +81,7 @@ export const agent = {
     license: "Apache 2.0",
     languages: ["TypeScript"],
     examples: {
-      cli: [
-        {
-          command: `beeai run ${agentName} "${exampleInputText}"`,
-          output: exampleOutputArtifact,
-          processingSteps,
-        },
-      ],
+      cli: [],
     },
     ui: {
       type: "custom",
