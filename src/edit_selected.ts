@@ -9,6 +9,7 @@ const workflow = new BeeCanvasAgent(chatModel).getWorkflow();
 const memory = new UnconstrainedMemory();
 const reader = createConsoleReader();
 
+const artifact_title = `Email Draft`;
 const artifact = `# Email Draft
 
 Subject: Urgent Notice: Break Room Refrigerator
@@ -44,6 +45,7 @@ const { result } = await workflow
     selectedTextOffset: offset,
     selectedTextLength: length,
     artifact: artifact,
+    artifact_title: artifact_title,
     memory: memory.asReadOnly(),
   })
   .observe((emitter) => {

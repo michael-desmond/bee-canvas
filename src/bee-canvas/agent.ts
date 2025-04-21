@@ -34,6 +34,7 @@ export class BeeCanvasAgent {
     selectedTextOffset: z.number().optional(),
     selectedTextLength: z.number().optional(),
     artifact: z.string().optional(),
+    artifact_title: z.string().optional(),
     memory: z.instanceof(ReadOnlyMemory),
   });
 
@@ -92,12 +93,15 @@ export class BeeCanvasAgent {
 
       const response = await this.chatModel.createStructure({
         schema: z.object({
+          title: z.string().describe("The title of the artifact."),
           artifact: z.string().describe("The artifact content."),
         }),
         messages: [new UserMessage(prompt)],
       });
 
       state.artifact = response.object.artifact;
+      state.artifact_title = response.object.title;
+
       return BeeCanvasAgent.STEPS.followUpArtifact;
     });
 
@@ -105,17 +109,20 @@ export class BeeCanvasAgent {
       const prompt = UPDATE_ARTIFACT_PROMPT.render({
         context: AGENT_CONTEXT,
         artifact: state.artifact,
+        artifact_title: state.artifact_title,
         request: state.input,
       });
 
       const response = await this.chatModel.createStructure({
         schema: z.object({
+          title: z.string().describe("The title of the artifact."),
           artifact: z.string().describe("The updated artifact."),
         }),
         messages: [new UserMessage(prompt)],
       });
 
       state.artifact = response.object.artifact;
+      state.artifact_title = response.object.title;
       return BeeCanvasAgent.STEPS.followUpArtifact;
     });
 
@@ -155,6 +162,7 @@ export class BeeCanvasAgent {
         .join("\n");
       const prompt = REPLY_GENERAL.render({
         context: AGENT_CONTEXT,
+        artifact_title: state.artifact_title,
         artifact: state.artifact,
         recentMessages: recentMessages,
         request: state.input,
@@ -177,6 +185,7 @@ export class BeeCanvasAgent {
         .join("\n");
       const prompt = FOLLOW_UP.render({
         context: AGENT_CONTEXT,
+        artifact_title: state.artifact,
         artifact: state.artifact,
         recentMessages: recentMessages,
         request: state.input,
