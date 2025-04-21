@@ -17,6 +17,7 @@ for await (const { prompt } of reader) {
       input: prompt,
       output: "",
       artifact: lastResult.artifact,
+      artifact_title: lastResult.artifact_title,
       memory: memory.asReadOnly(),
     })
     .observe((emitter) => {
@@ -28,6 +29,7 @@ for await (const { prompt } of reader) {
 
   lastResult = result;
 
+  reader.write("🤖 Artifact title:", `\n${lastResult.artifact_title || ""}`);
   reader.write("🤖 Artifact:", `\n${lastResult.artifact || ""}`);
   reader.write("🤖 Response:", lastResult.output || "");
 
