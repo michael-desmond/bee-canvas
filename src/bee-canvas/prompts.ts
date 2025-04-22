@@ -76,7 +76,7 @@ Produce an artifact that satisfies the user's request.
 export const UPDATE_ARTIFACT_PROMPT = new PromptTemplate({
   schema: z.object({
     context: z.string(),
-    artifact_title: z.string(),
+    artifactTitle: z.string(),
     artifact: z.string(),
     request: z.string(),
   }),
@@ -131,7 +131,7 @@ Ensure you reply with the FULL document, including the updated selected text. NE
 export const REPLY_GENERAL = new PromptTemplate({
   schema: z.object({
     context: z.string(),
-    artifact_title: z.string().optional().default(""),
+    artifactTitle: z.string().optional().default(""),
     artifact: z.string().optional().default(""),
     recentMessages: z.string(),
     request: z.string(),
@@ -162,7 +162,7 @@ Respond to the user's message. DO NOT include the artifact in the follow up mess
 
 export const FOLLOW_UP = new PromptTemplate({
   schema: z.object({
-    artifact_title: z.string(),
+    artifactTitle: z.string(),
     artifact: z.string(),
     context: z.string(),
     recentMessages: z.string(),

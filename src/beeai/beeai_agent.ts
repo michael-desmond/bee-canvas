@@ -10,12 +10,12 @@ import { AcpServer } from "@i-am-bee/acp-sdk/server/acp";
 const inputSchema = messageInputSchema.extend({
   selectedTextOffset: z.number().optional(),
   selectedTextLength: z.number().optional(),
-  artifact_title: z.string().optional(),
+  artifactTitle: z.string().optional(),
   artifact: z.string().optional(),
 });
 
 const outputSchema = messageOutputSchema.extend({
-  artifact_title: z.string().optional(),
+  artifactTitle: z.string().optional(),
   artifact: z.string().optional(),
 });
 
@@ -34,7 +34,7 @@ const run =
 
       { signal }: { signal?: AbortSignal },
     ) => {
-      const { messages, artifact, artifact_title, selectedTextOffset, selectedTextLength } =
+      const { messages, artifact, artifactTitle, selectedTextOffset, selectedTextLength } =
         params.input;
 
       // Input passed as first user message
@@ -51,7 +51,7 @@ const run =
           input: input,
           output: "",
           artifact: artifact,
-          artifact_title: artifact_title,
+          artifactTitle: artifactTitle,
           selectedTextOffset: selectedTextOffset,
           selectedTextLength: selectedTextLength,
           memory: memory.asReadOnly(),
@@ -61,7 +61,7 @@ const run =
 
       return {
         messages: [{ role: "assistant", content: result.output || "" }],
-        artifact_title: result.artifact_title,
+        artifactTitle: result.artifactTitle,
         artifact: result.artifact,
       } as Output;
     };
