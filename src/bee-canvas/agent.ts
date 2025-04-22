@@ -94,7 +94,7 @@ export class BeeCanvasAgent {
       const response = await this.chatModel.createStructure({
         schema: z.object({
           title: z.string().describe("The title of the artifact."),
-          artifact: z.string().describe("The artifact content."),
+          artifact: z.string().describe("The generated artifact.").trim().min(1),
         }),
         messages: [new UserMessage(prompt)],
       });
@@ -116,7 +116,7 @@ export class BeeCanvasAgent {
       const response = await this.chatModel.createStructure({
         schema: z.object({
           title: z.string().describe("The title of the artifact."),
-          artifact: z.string().describe("The updated artifact."),
+          artifact: z.string().describe("The updated artifact.").trim().min(1),
         }),
         messages: [new UserMessage(prompt)],
       });
@@ -146,7 +146,7 @@ export class BeeCanvasAgent {
 
         const response = await this.chatModel.createStructure({
           schema: z.object({
-            updatedDocument: z.string().describe("The updated document."),
+            updatedDocument: z.string().describe("The updated document.").trim().min(1),
           }),
           messages: [new UserMessage(prompt)],
         });
