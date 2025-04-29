@@ -6,7 +6,8 @@ import { UserMessage } from "beeai-framework/backend/message";
 
 import {
   AGENT_CONTEXT,
-  FOLLOW_UP,
+  FOLLOW_UP_CREATE,
+  FOLLOW_UP_UPDATE,
   NEW_ARTIFACT_PROMPT,
   REPLY_GENERAL,
   ROUTE_QUERY_OPTIONS_HAS_ARTIFACTS,
@@ -36,6 +37,13 @@ export class BeeCanvasAgent {
     artifact: z.string().optional(),
     artifactTitle: z.string().optional(),
     memory: z.instanceof(ReadOnlyMemory),
+    route: z
+      .union([
+        z.literal("rewriteArtifact"),
+        z.literal("generateArtifact"),
+        z.literal("replyToGeneralInput"),
+      ])
+      .optional(),
   });
 
   private chatModel: ChatModel;
@@ -77,6 +85,7 @@ export class BeeCanvasAgent {
         messages: [new UserMessage(prompt)],
       });
 
+      state.route = object;
       return object;
     });
 
@@ -183,7 +192,10 @@ export class BeeCanvasAgent {
       const recentMessages = state.memory.messages
         .map((msg) => `${msg.role}: ${msg.text}`)
         .join("\n");
-      const prompt = FOLLOW_UP.render({
+
+      const template = state.route == "rewriteArtifact" ? FOLLOW_UP_UPDATE : FOLLOW_UP_CREATE;
+
+      const prompt = template.render({
         context: AGENT_CONTEXT,
         artifactTitle: state.artifact,
         artifact: state.artifact,
