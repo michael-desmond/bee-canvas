@@ -90,7 +90,7 @@ export const agent = {
     },
     ui: {
       type: "custom",
-      userGreeting: "Ask the agent to help you write a document or some code.",
+      userGreeting: "Collaborate on docs and code",
     },
     githubUrl: "https://github.com/michael-desmond/bee-canvas",
     exampleInput: exampleInputText,
