@@ -16,7 +16,7 @@
     },
     "ui": {
       "type": "custom",
-      "userGreeting": "Let's create together!"
+      "userGreeting": "Collaborate on docs and code"
     },
     "fullDescription": "A co-editing agent built using the beeai-framework.\n## ✨ Key Features\n   - Generate & update co-editable artifacts (Markdown & Code)\n   - Implemented using Bee Workflows 💪",
     "env": [
